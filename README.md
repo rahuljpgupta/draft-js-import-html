@@ -23,14 +23,26 @@ const contentState = stateFromElement(element);
 
 You can optionally pass a second `Object` argument to `stateFromElement` with the following supported properties:
 
-- `elementStyles`: HTML element name as key, DraftJS style string as value. Example:
+| Option key     | Option Description   |
+| -------------- | -------------------- |
+| elementStyles  | HTML element name as key, DraftJS style string as value.  |
+| customStyleMap | Custom style mapping object, similar to the [customStyleMap](https://facebook.github.io/draft-js/docs/advanced-topics-inline-styles.html#mapping-a-style-string-to-css) the draft-js `Editor` receives.  |
 
-        stateFromElement(element, {
-          elementStyles: {
-            // Support `<sup>` (superscript) tag as style:
-            'sup': 'SUPERSCRIPT'
-          }
-        });
+Example of options usage:
+
+```javascript
+import {stateFromElement} from 'draft-js-import-element';
+let options = {
+  elementStyles: {
+    // Support `<sup>` (superscript) tag as style:
+    'sup': 'SUPERSCRIPT'
+  },
+  customStyleMap: {
+    'RED': { color: 'red' }
+  }
+};
+const contentState = stateFromElement(element, options);
+```
 
 ## License
 

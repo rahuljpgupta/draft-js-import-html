@@ -11,6 +11,7 @@ import {
 import {List, OrderedSet, Repeat, Seq} from 'immutable';
 import {BLOCK_TYPE, ENTITY_TYPE, INLINE_STYLE} from 'draft-js-utils';
 import {NODE_TYPE_ELEMENT, NODE_TYPE_TEXT} from 'synthetic-dom';
+import styleToCssString from './styleToCssString';
 
 import type {Set, IndexedSeq} from 'immutable';
 import type {
@@ -45,9 +46,12 @@ type ParsedBlock = {
 };
 
 type ElementStyles = {[tagName: string]: Style};
+type CustomStyleMap = {[styleName: string]: { [key: string]: string }};
+type CustomCssMapToStyle = {[css: string]: string};
 
 type Options = {
   elementStyles?: ElementStyles;
+  customStyleMap?: CustomStyleMap;
 };
 
 const NO_STYLE = OrderedSet();
@@ -145,7 +149,8 @@ class BlockGenerator {
   options: Options;
 
   constructor(options: Options = {}) {
-    this.options = options;
+    this.elementStyles = options.elementStyles || {};
+    this.customStyleMap = options.customStyleMap || {};
     // This represents the hierarchy as we traverse nested elements; for
     // example [body, ul, li] where we must know li's parent type (ul or ol).
     this.blockStack = [];
@@ -274,7 +279,18 @@ class BlockGenerator {
     let block = this.blockStack.slice(-1)[0];
     let style = block.styleStack.slice(-1)[0];
     let entityKey = block.entityStack.slice(-1)[0];
-    style = addStyleFromTagName(style, tagName, this.options.elementStyles);
+    style = addStyleFromTagName(style, tagName, this.elementStyles);
+    let styleAttribute = element.attributes['style'];
+    if (styleAttribute && styleAttribute.value) {
+      let customCssMapToStyle = {};
+
+      // Convert react styles to css string values
+      Object.keys(this.customStyleMap).forEach(key => {
+        customCssMapToStyle[styleToCssString(this.customStyleMap[key])] = key;
+      });
+
+      style = addStyleFromStyleAttribute(style, styleAttribute.value, customCssMapToStyle);
+    }
     if (ELEM_TO_ENTITY.hasOwnProperty(tagName)) {
       // If the to-entity function returns nothing, use the existing entity.
       entityKey = ELEM_TO_ENTITY[tagName](tagName, element) || entityKey;
@@ -426,7 +442,7 @@ function addStyleFromTagName(styleSet: StyleSet, tagName: string, elementStyles?
       return styleSet.add(INLINE_STYLE.STRIKETHROUGH);
     }
     default: {
-      // Allow custom styles to be provided.
+      // Allow custom element styles to be provided.
       if (elementStyles && elementStyles[tagName]) {
         return styleSet.add(elementStyles[tagName]);
       }
@@ -434,6 +450,15 @@ function addStyleFromTagName(styleSet: StyleSet, tagName: string, elementStyles?
       return styleSet;
     }
   }
+}
+
+function addStyleFromStyleAttribute(styleSet: StyleSet, styleAttributeValue: string, customCssMapToStyle?: CustomCssMapToStyle): StyleSet {
+  // Allow custom css styles to be provided
+  if (Object.keys(customCssMapToStyle).indexOf(styleAttributeValue) >= 0) {
+    return styleSet.add(customCssMapToStyle[styleAttributeValue]);
+  }
+
+  return styleSet;
 }
 
 export default function stateFromElement(element: DOMElement, options?: Options): ContentState {
