@@ -285,7 +285,7 @@ class BlockGenerator {
       let customCssMapToStyle = {};
 
       // Convert react styles to css string values
-      Object.keys(this.customStyleMap).forEach(key => {
+      Object.keys(this.customStyleMap).forEach((key) => {
         customCssMapToStyle[styleToCssString(this.customStyleMap[key])] = key;
       });
 

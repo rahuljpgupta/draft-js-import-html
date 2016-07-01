@@ -38,7 +38,7 @@ let options = {
     'sup': 'SUPERSCRIPT'
   },
   customStyleMap: {
-    'RED': { color: 'red' }
+    RED: { color: 'red' }
   }
 };
 const contentState = stateFromElement(element, options);
