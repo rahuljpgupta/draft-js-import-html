@@ -146,7 +146,8 @@ class BlockGenerator {
   blockStack: Array<ParsedBlock>;
   blockList: Array<ParsedBlock>;
   depth: number;
-  options: Options;
+  elementStyles: ElementStyles;
+  customStyleMap: CustomStyleMap;
 
   constructor(options: Options = {}) {
     this.elementStyles = options.elementStyles || {};

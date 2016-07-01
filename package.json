@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "draft-js-utils": "^0.1.5",
-    "synthetic-dom": "^0.1.4"
+    "synthetic-dom": "^0.1.4",
+    "fbjs": "^0.8.3"
   },
   "peerDependencies": {
     "draft-js": ">=0.5.0",
