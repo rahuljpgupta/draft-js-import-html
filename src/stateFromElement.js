@@ -281,8 +281,8 @@ class BlockGenerator {
     let style = block.styleStack.slice(-1)[0];
     let entityKey = block.entityStack.slice(-1)[0];
     style = addStyleFromTagName(style, tagName, this.elementStyles);
-    let styleAttribute = element.attributes['style'];
-    if (styleAttribute && styleAttribute.value) {
+    let styleAttribute = element.getAttribute('style');
+    if (styleAttribute) {
       let customCssMapToStyle = {};
 
       // Convert react styles to css string values
@@ -290,7 +290,7 @@ class BlockGenerator {
         customCssMapToStyle[styleToCssString(this.customStyleMap[key])] = key;
       });
 
-      style = addStyleFromStyleAttribute(style, styleAttribute.value, customCssMapToStyle);
+      style = addStyleFromStyleAttribute(style, styleAttribute, customCssMapToStyle);
     }
     if (ELEM_TO_ENTITY.hasOwnProperty(tagName)) {
       // If the to-entity function returns nothing, use the existing entity.
@@ -453,7 +453,7 @@ function addStyleFromTagName(styleSet: StyleSet, tagName: string, elementStyles?
   }
 }
 
-function addStyleFromStyleAttribute(styleSet: StyleSet, styleAttributeValue: string, customCssMapToStyle?: CustomCssMapToStyle): StyleSet {
+function addStyleFromStyleAttribute(styleSet: StyleSet, styleAttributeValue: string, customCssMapToStyle: CustomCssMapToStyle): StyleSet {
   // Allow custom css styles to be provided
   if (Object.keys(customCssMapToStyle).indexOf(styleAttributeValue) >= 0) {
     return styleSet.add(customCssMapToStyle[styleAttributeValue]);
