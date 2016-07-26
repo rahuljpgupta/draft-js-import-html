@@ -47,3 +47,17 @@ export default function styleToCssString(rules) {
 
   return result.trim();
 }
+
+
+function toKebab(str){
+    str = str.replace(/([A-Z])/g, '-$1').toLowerCase();
+    return str;
+}
+
+function objToCss(style) {
+    let result = [];
+
+    Object.keys(style).map((key) => (toKebab(key) + ': ' + style[key] + ';'));
+
+    return styles.join(' ');
+}
