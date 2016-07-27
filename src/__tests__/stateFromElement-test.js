@@ -58,18 +58,19 @@ describe('stateFromElement', () => {
 
   it('supports custom style option', () => {
     let textNode = new TextNode('text');
-    let element = new ElementNode('span', [['style', 'color: red;']], [textNode]);
+    let element = new ElementNode('span', [['style', 'color: red; background-color: blue;']], [textNode]);
     element.attributes.style = {value: element.attributes.get('style')}; // make the style attribute DOM like
     let wrapperElement = new ElementNode('div', [], [element]);
     let options = {
       customStyleMap: {
         RED: {color: 'red'},
+        BLUEBG: {backgroundColor: 'blue'}
       },
     };
     let contentState = stateFromElement(wrapperElement, options);
     let rawContentState = removeBlockKeys(convertToRaw(contentState));
     expect(rawContentState).toEqual(
-      {entityMap: {}, blocks: [{text: 'text', type: 'unstyled', depth: 0, inlineStyleRanges: [{offset: 0, length: 4, style: 'RED'}], entityRanges: []}]}
+      {entityMap: {}, blocks: [{text: 'text', type: 'unstyled', depth: 0, inlineStyleRanges: [{offset: 0, length: 4, style: 'RED'}, {offset: 0, length: 4, style: 'BLUEBG'}], entityRanges: []}]}
     );
   });
 });

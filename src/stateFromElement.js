@@ -283,14 +283,20 @@ class BlockGenerator {
     style = addStyleFromTagName(style, tagName, this.elementStyles);
     let styleAttribute = element.getAttribute('style');
     if (styleAttribute) {
-      let customCssMapToStyle = {};
+      const customCssMapToStyle = {};
+      const normalizeStyle = str => str.replace(/ /g, '').replace(/;/g, '');
 
       // Convert react styles to css string values
       Object.keys(this.customStyleMap).forEach((key) => {
-        customCssMapToStyle[styleToCssString(this.customStyleMap[key])] = key;
+        customCssMapToStyle[normalizeStyle(styleToCssString(this.customStyleMap[key]))] = key;
       });
-
-      style = addStyleFromStyleAttribute(style, styleAttribute, customCssMapToStyle);
+      
+      for (let styleValue of styleAttribute.split(';')) {
+        const styleAttr = normalizeStyle(styleValue);
+        if (styleAttr) {
+          style = addStyleFromStyleAttribute(style, styleAttr, customCssMapToStyle);
+        }
+      }
     }
     if (ELEM_TO_ENTITY.hasOwnProperty(tagName)) {
       // If the to-entity function returns nothing, use the existing entity.
