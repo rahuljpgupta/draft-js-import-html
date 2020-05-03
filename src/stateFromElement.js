@@ -8,7 +8,7 @@ import {
   Entity,
   genKey,
 } from 'draft-js';
-import {List, OrderedSet, Repeat, Seq} from 'immutable';
+import {List, Map, OrderedSet, Repeat, Seq} from 'immutable';
 import {BLOCK_TYPE, ENTITY_TYPE, INLINE_STYLE} from 'draft-js-utils';
 import {NODE_TYPE_ELEMENT, NODE_TYPE_TEXT} from 'synthetic-dom';
 import styleToCssString from './styleToCssString';
@@ -31,6 +31,8 @@ type TextFragment = {
   characterMeta: CharacterMetaSeq;
 };
 
+type BlockData = {[key: string]: mixed};
+
 // A ParsedBlock has two purposes:
 //   1) to keep data about the block (textFragments, type)
 //   2) to act as some context for storing parser state as we parse its contents
@@ -43,6 +45,7 @@ type ParsedBlock = {
   styleStack: Array<StyleSet>;
   entityStack: Array<?Entity>;
   depth: number;
+  data: ?BlockData;
 };
 
 type ElementStyles = {[tagName: string]: Style};
@@ -52,6 +55,7 @@ type CustomCssMapToStyle = {[css: string]: string};
 type Options = {
   elementStyles?: ElementStyles;
   customStyleMap?: CustomStyleMap;
+  customBlockFn?: (element: DOMElement) => ?{type?: string, data?: BlockData};
 };
 
 const NO_STYLE = OrderedSet();
@@ -190,6 +194,7 @@ class BlockGenerator {
             type: block.type,
             characterList: characterMeta.toList(),
             depth: block.depth,
+            data: block.data ? Map(block.data) : Map(),
           })
         );
       }
@@ -244,7 +249,20 @@ class BlockGenerator {
 
   processBlockElement(element: DOMElement) {
     let tagName = element.nodeName.toLowerCase();
-    let type = this.getBlockTypeFromTagName(tagName);
+    let {customBlockFn} = this.options;
+    // let type = this.getBlockTypeFromTagName(tagName);
+    let type: ?string;
+    let data: ?BlockData;
+    if (customBlockFn) {
+      let customBlock = customBlockFn(element);
+      if (customBlock != null) {
+        type = customBlock.type;
+        data = customBlock.data;
+      }
+    }
+    if (type == null) {
+      type = this.getBlockTypeFromTagName(tagName);
+    }
     let hasDepth = canHaveDepth(type);
     let allowRender = !SPECIAL_ELEMENTS.hasOwnProperty(tagName);
     let block: ParsedBlock = {
@@ -254,6 +272,7 @@ class BlockGenerator {
       styleStack: [NO_STYLE],
       entityStack: [NO_ENTITY],
       depth: hasDepth ? this.depth : 0,
+      data,
     };
     if (allowRender) {
       this.blockList.push(block);
