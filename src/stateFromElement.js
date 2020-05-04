@@ -258,7 +258,7 @@ class BlockGenerator {
     let data: ?BlockData;
     if (customBlockFn) {
       let customBlock = customBlockFn(element);
-      if (customBlock != null) {
+      if (customBlock ) {
         type = customBlock.type;
         data = customBlock.data;
       }
