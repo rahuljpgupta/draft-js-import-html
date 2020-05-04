@@ -248,6 +248,9 @@ class BlockGenerator {
   }
 
   processBlockElement(element: DOMElement) {
+    if (!element) {
+      return;
+    }
     let tagName = element.nodeName.toLowerCase();
     let {customBlockFn} = this.options;
     // let type = this.getBlockTypeFromTagName(tagName);
