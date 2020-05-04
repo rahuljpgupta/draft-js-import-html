@@ -154,6 +154,7 @@ class BlockGenerator {
   customStyleMap: CustomStyleMap;
 
   constructor(options: Options = {}) {
+    this.options = options;
     this.elementStyles = options.elementStyles || {};
     this.customStyleMap = options.customStyleMap || {};
     // This represents the hierarchy as we traverse nested elements; for
@@ -253,7 +254,6 @@ class BlockGenerator {
     }
     let tagName = element.nodeName.toLowerCase();
     let {customBlockFn} = this.options;
-    // let type = this.getBlockTypeFromTagName(tagName);
     let type: ?string;
     let data: ?BlockData;
     if (customBlockFn) {
