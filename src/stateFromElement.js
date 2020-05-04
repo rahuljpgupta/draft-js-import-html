@@ -275,6 +275,7 @@ class BlockGenerator {
       styleStack: [NO_STYLE],
       entityStack: [NO_ENTITY],
       depth: hasDepth ? this.depth : 0,
+      data,
     };
     if (allowRender) {
       this.blockList.push(block);
