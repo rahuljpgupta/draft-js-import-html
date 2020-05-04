@@ -263,7 +263,7 @@ class BlockGenerator {
         data = customBlock.data;
       }
     }
-    if (type == null) {
+    if (!type) {
       type = this.getBlockTypeFromTagName(tagName);
     }
     let hasDepth = canHaveDepth(type);
